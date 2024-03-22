@@ -1,13 +1,13 @@
 // @refresh reload
 
-import { For, Show, Suspense } from "solid-js";
-import { useLocation } from "@solidjs/router";
+import { For, Show, Suspense, onMount } from "solid-js";
+import { useLocation, useBeforeLeave } from "@solidjs/router";
 import { Collapsible, Tabs } from "@kobalte/core";
 import { Icon } from "solid-heroicons";
 import { chevronDown } from "solid-heroicons/solid";
 import { setIsOpen } from "./mobile-navigation";
 import { A } from "~/ui/i18n-anchor";
-import { Dynamic } from "solid-js/web";
+import { Dynamic, isServer } from "solid-js/web";
 import { useI18n } from "~/i18n/i18n-context";
 
 interface Entry {
@@ -127,20 +127,54 @@ function DirList(props: { list: Entry[] }) {
 export function MainNavigation(props: NavProps) {
 	const i18n = useI18n();
 
+	const tabs = ["learn", "reference"] as const;
+
 	const learn = () => props.tree.learn;
 	const reference = () => props.tree.reference;
 
 	const loc = useLocation();
 	const path = () => loc.pathname;
 
+	const selectedTab = () =>
+		path().includes("reference") ? "reference" : "learn";
+	let tabsIndicatorElement: HTMLDivElement;
+
+	const initialClasses = isServer
+		? `w-full col-span-1 col-start-${tabs.indexOf(selectedTab()) + 1} duration-0 [&:is([style])]:bg-red-500`
+		: "col-start-auto";
+
+	const extra = new Set(["duration-200"]);
+
+	onMount(() => {
+		console.log("mounted");
+		// tabsIndicatorElement.classList.remove(
+		// 	...[
+		// 		"w-full",
+		// 		"col-span-1",
+		// 		`col-start-${tabs.indexOf(selectedTab()) + 1}`,
+		// 		"duration-0",
+		// 	]
+		// );
+		// 		queueMicrotask(() => {
+		// 			setTimeout(() => {
+		//  [from.pathname, to.toString()]
+		// 			}, 1000);
+		// 		});
+		queueMicrotask(() => {
+			setTimeout(() => {
+				// tabsIndicatorElement.classList.remove("duration-0");
+				// tabsIndicatorElement.classList.remove("col-start-1");
+				// tabsIndicatorElement.classList.remove("col-start-2");
+			}, 0);
+		});
+	});
+
 	return (
 		<Suspense>
 			<Show when={i18n.t} keyed>
 				<nav class="overflow-y-auto custom-scrollbar h-full md:h-[calc(100vh-7rem)] pb-20">
-					<Tabs.Root
-						defaultValue={path().includes("reference") ? "reference" : "learn"}
-					>
-						<Tabs.List class="sticky top-0 grid grid-cols-2 w-full z-10 md:dark:bg-slate-900 md:bg-slate-50">
+					<Tabs.Root defaultValue={selectedTab()}>
+						<Tabs.List class="group-tabList sticky top-0 grid grid-cols-2 w-full z-10 md:dark:bg-slate-900 md:bg-slate-50">
 							<Tabs.Trigger
 								value="learn"
 								class="inline-block py-3 outline-none hover:bg-blue-500/30 dark:hover:bg-blue-300/20 dark:focus-visible:bg-blue-800 dark:text-slate-100 hover:font-bold font-medium"
@@ -153,8 +187,18 @@ export function MainNavigation(props: NavProps) {
 							>
 								{i18n.t("main.nav.tab.reference")}
 							</Tabs.Trigger>
-							<Tabs.Indicator class="absolute bottom-0 bg-blue-500 dark:bg-blue-500 transition-all duration-250 h-[2px]" />
+							<Tabs.Indicator
+								ref={tabsIndicatorElement!}
+								// style={
+								// 	(isServer && { transform: "none" }) || null
+								// 	// {
+								// 	// 	"grid-column-start": "initial",
+								// 	// }
+								// }
+								class={`${isServer ? "server" : "client"} absolute bottom-0 bg-blue-500 dark:bg-blue-500 transition-all h-[2px] || ${initialClasses} `}
+							/>
 						</Tabs.List>
+
 						<Tabs.Content value="learn" class="w-full relative mt-5">
 							<Show
 								when={learn()}

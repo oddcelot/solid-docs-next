@@ -153,11 +153,14 @@ export const Layout: ParentComponent<{ isError?: boolean }> = (props) => {
 								<Show when={!props.isError} fallback={<>{resolved()}</>}>
 									<Suspense>
 										<Show when={entries()}>
-											{(data) => (
-												<DocsLayout entries={data().entries}>
-													{resolved()}
-												</DocsLayout>
-											)}
+											{(data) => {
+												console.log(data().entries);
+												return (
+													<DocsLayout entries={data().entries}>
+														{resolved()}
+													</DocsLayout>
+												);
+											}}
 										</Show>
 									</Suspense>
 								</Show>

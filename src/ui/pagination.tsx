@@ -14,17 +14,24 @@ type Pagination = {
 	currentIndex: number;
 };
 export function Pagination(props: Pagination) {
+	const currentIndex = () => props.currentIndex;
 	const previous = () => {
-		if (props.currentIndex > 0) {
-			return props.collection[props.currentIndex - 1];
+		// console.log("should run for", currentIndex());
+		return null;
+		if (currentIndex() > 0) {
+			// console.log("should return for", currentIndex());
+			return props.collection[currentIndex() - 1];
 		} else {
+			// console.log("should be null");
 			return null;
 		}
 	};
 
+	console.log("previous()", previous());
+
 	const next = () => {
-		if (props.currentIndex < props.collection.length) {
-			return props.collection[props.currentIndex + 1];
+		if (currentIndex() < props.collection.length) {
+			return props.collection[currentIndex() + 1];
 		} else {
 			return null;
 		}
@@ -37,19 +44,21 @@ export function Pagination(props: Pagination) {
 			<Show when={i18n.t}>
 				<nav class="flex justify-between mt-10 pt-6 border-t border-slate-200 dark:border-slate-800">
 					<Show when={previous()}>
-						{(entry) => (
-							<div>
-								<span class="font-display text-sm font-medium text-slate-900 dark:text-white">
-									{i18n.t("pagination.previous")}
-								</span>
-								<A
-									class="flex items-center gap-x-1 text-base font-medium text-slate-500 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-300 flex-row-reverse no-underline"
-									href={entry().path}
-								>
-									← {entry().title}
-								</A>
-							</div>
-						)}
+						{(entry) => {
+							return (
+								<div>
+									<span class="font-display text-sm font-medium text-slate-900 dark:text-white">
+										{i18n.t("pagination.previous")}
+									</span>
+									<A
+										class="flex items-center gap-x-1 text-base font-medium text-slate-500 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-300 flex-row-reverse no-underline"
+										href={entry().path}
+									>
+										← {entry().title}
+									</A>
+								</div>
+							);
+						}}
 					</Show>
 					<Show when={next()}>
 						{(entry) => (

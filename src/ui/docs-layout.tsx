@@ -27,18 +27,15 @@ export const DocsLayout = (props: DocsLayoutProps) => {
 			: props.entries.learn;
 
 	const entryIndex = () =>
-		collection()!.findIndex((element) => lastSegmentPath() === element.slug);
+		collection().findIndex((element) => lastSegmentPath() === element.slug);
 
 	const titles = () => {
-		const fullEntry = collection
-			? collection()![entryIndex()]
-			: { parent: undefined, title: undefined };
-		if (fullEntry) {
-			return {
-				parent: fullEntry?.parent !== "root" ? fullEntry.parent : undefined,
-				title: fullEntry?.title,
-			};
-		}
+		const entry = collection()[entryIndex()] || {
+			parent: undefined,
+			title: undefined,
+		};
+		const parent = entry.parent !== "root" ? entry.parent : undefined;
+		return { ...entry, parent };
 	};
 
 	onMount(() => document.dispatchEvent(new CustomEvent("docs-layout-mounted")));
@@ -47,19 +44,19 @@ export const DocsLayout = (props: DocsLayoutProps) => {
 		<Show when={props.entries} keyed>
 			{(e) => (
 				<>
-					<Show when={titles()?.title} fallback={<Title>SolidDocs</Title>}>
+					<Show when={titles().title} fallback={<Title>SolidDocs</Title>}>
 						{(title) => <Title>{`${title()} - SolidDocs`}</Title>}
 					</Show>
 					<div id="rr" class="flex relative justify-center">
 						<article class="w-fit overflow-hidden px-2 pb-16 md:px-10 expressive-code-overrides lg:max-w-none lg:min-w-[65ch]">
-							<Show when={titles()?.parent}>
+							<Show when={titles().parent}>
 								{(t) => (
 									<span class="text-sm font-semibold text-blue-700 dark:text-blue-300 my-1">
 										{t()}
 									</span>
 								)}
 							</Show>
-							<Show when={titles()?.title}>
+							<Show when={titles().title}>
 								{(t) => (
 									<h1 class="prose-headings:text-[2.8rem] text-slate-900 dark:text-white">
 										{t()}
